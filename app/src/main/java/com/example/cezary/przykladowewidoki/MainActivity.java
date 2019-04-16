@@ -2,9 +2,6 @@ package com.example.cezary.przykladowewidoki;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -15,18 +12,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+import java.util.ArrayList;
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    ArrayList<Event> events = new ArrayList<Event>();
+
+    LinearLayout eventsListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(Calendar.getInstance().get());
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -37,6 +41,39 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        eventsListView = (LinearLayout) findViewById(R.id.eventsList);
+
+        /* DEFAULT DATA */
+        Calendar start = Calendar.getInstance(),
+                end = Calendar.getInstance();
+
+        start.set(2019, 4, 18, 8, 0);
+        end.set(2019, 4, 18, 9, 0);
+
+        events.add(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
+
+        start.add(Calendar.HOUR, 1);
+        end.add(Calendar.HOUR, 1);
+
+        events.add(new Event("Spotkanie na PWr", "C4 Politechnika Wrocławska, Janiszewskiego, Wrocław", start, end));
+
+        start.add(Calendar.HOUR, 1);
+        end.add(Calendar.HOUR, 1);
+
+        events.add(new Event("Spotkanie w Nokii", "Strzegomska 36, 53-611 Wrocław", Calendar.getInstance(), Calendar.getInstance()));
+
+        start.add(Calendar.HOUR, 1);
+        end.add(Calendar.HOUR, 1);
+
+        events.add(new Event("Spotkanie w Comarchu", "Jana Długosza 2-6, 51-162 Wrocław", Calendar.getInstance(), Calendar.getInstance()));
+
+        start.add(Calendar.HOUR, 1);
+        end.add(Calendar.HOUR, 1);
+
+        events.add(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", Calendar.getInstance(), Calendar.getInstance()));
+
+        refreshEvents();
     }
 
     @Override
@@ -100,18 +137,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showCreateEventView(View view) {
-        Intent intent = new Intent(this, CreateEventActivity.class);
-        startActivity(intent);
+        /*Intent intent = new Intent(this, CreateEventActivity.class);
+        startActivity(intent);*/
+
+        createEvent(new Event("Nowe wydarzenie", "Nowe miejsce", Calendar.getInstance(), Calendar.getInstance()));
     }
 
-    public void expandEvent(View view) {
-        Log.d("test","dziala");
-        CardView card = view.findViewById(R.id.firstCard);
+    public void createEvent(Event event) {
+        events.add(event);
+        eventsListView.addView(new EventView(getBaseContext(), null, event));
+    }
 
-        LinearLayout buttons = card.findViewById(R.id.buttons);
+    private void refreshEvents() {
+        eventsListView.removeAllViews();
 
-
-        buttons.setVisibility(View.VISIBLE);
-
+        for(Event e : events)
+        {
+            EventView v = new EventView(getBaseContext(), null, e);
+            eventsListView.addView(v);
+        }
     }
 }

@@ -47,7 +47,8 @@
             android:text="Zaloguj przez Google"
             android:textColor="#333"
             tools:layout_editor_absoluteX="20dp"
-            tools:layout_editor_absoluteY="396dp" />
+            tools:layout_editor_absoluteY="396dp"
+            android:onClick="login"/>
 
     </LinearLayout>
 

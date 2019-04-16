@@ -1,17 +1,22 @@
 package com.example.cezary.przykladowewidoki;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Event implements Serializable {
 
     public String name, place;
-    public Date date;
+    public Calendar startDate;
+    public Calendar endDate;
 
-    public Event(String name, String place, Date date) {
-        this.date = date;
-        this.place = place;
+    public Event(String name, String place, Calendar startDate, Calendar endDate) {
         this.name = name;
+        this.place = place;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public String getName() {
@@ -30,11 +35,25 @@ public class Event implements Serializable {
         this.place = place;
     }
 
-    public Date getDate() {
-        return date;
+    public Calendar getStartDate() {
+        return startDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setStartDate(Calendar startDate) {
+        this.startDate = startDate;
+    }
+
+    public Calendar getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Calendar endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getDateText() {
+        SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm");
+
+        return "od " + dateformat.format(startDate.getTime()) + " do " + dateformat.format(endDate.getTime());
     }
 }
