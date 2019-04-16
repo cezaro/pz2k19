@@ -22,8 +22,6 @@ public class EventView extends LinearLayout {
         init(context, attrs);
         this.event = event;
 
-        Log.d("test",event.name);
-
         nameText.setText(event.name);
         placeText.setText(event.place);
         dateText.setText(event.getDateText());
@@ -40,7 +38,7 @@ public class EventView extends LinearLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d("test","dziala");
+//        Log.d("test","dziala");
 
         return true;
     }
