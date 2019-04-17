@@ -66,17 +66,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         start.add(Calendar.HOUR, 1);
         end.add(Calendar.HOUR, 1);
 
-        events.add(new Event("Spotkanie w Nokii", "Strzegomska 36, 53-611 Wrocław", Calendar.getInstance(), Calendar.getInstance()));
+        events.add(new Event("Spotkanie w Nokii", "Strzegomska 36, 53-611 Wrocław", start, end));
 
         start.add(Calendar.HOUR, 1);
         end.add(Calendar.HOUR, 1);
 
-        events.add(new Event("Spotkanie w Comarchu", "Jana Długosza 2-6, 51-162 Wrocław", Calendar.getInstance(), Calendar.getInstance()));
+        events.add(new Event("Spotkanie w Comarchu", "Jana Długosza 2-6, 51-162 Wrocław", start, end));
 
         start.add(Calendar.HOUR, 1);
         end.add(Calendar.HOUR, 1);
 
-        events.add(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", Calendar.getInstance(), Calendar.getInstance()));
+        events.add(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));
 
         refreshEvents();
     }
