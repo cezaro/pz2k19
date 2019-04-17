@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         events.add(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));
 
+        
         refreshEvents();
     }
 
