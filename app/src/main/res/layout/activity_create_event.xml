@@ -12,11 +12,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical"
-        android:padding="30dp">
+        android:padding="30dp"
+        tools:layout_editor_absoluteY="56dp">
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/nameTXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
@@ -27,7 +29,7 @@
             android:padding="15dp" />
 
         <EditText
-            android:id="@+id/editText5"
+            android:id="@+id/placeTXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
@@ -37,6 +39,13 @@
             android:inputType="textPersonName"
             android:padding="15dp" />
 
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Początek:" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,21 +53,65 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/editText4"
+                android:id="@+id/startTimeTXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
+                android:clickable="true"
                 android:ems="10"
+                android:focusable="false"
                 android:hint="Godzina"
                 android:inputType="time"
                 android:padding="15dp" />
 
             <EditText
-                android:id="@+id/editText3"
+                android:id="@+id/startDateTXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:clickable="true"
                 android:ems="10"
+                android:focusable="false"
+                android:hint="Data"
+                android:inputType="date"
+                android:padding="15dp"
+                tools:layout_editor_absoluteX="84dp"
+                tools:layout_editor_absoluteY="208dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Koniec:" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/endTimeTXT"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:clickable="true"
+                android:ems="10"
+                android:focusable="false"
+                android:hint="Godzina"
+                android:inputType="time"
+                android:padding="15dp" />
+
+            <EditText
+                android:id="@+id/endDateTXT"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:clickable="true"
+                android:ems="10"
+                android:focusable="false"
                 android:hint="Data"
                 android:inputType="date"
                 android:padding="15dp"
@@ -67,7 +120,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/addButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
