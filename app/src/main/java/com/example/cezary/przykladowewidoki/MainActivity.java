@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     ArrayList<Event> events = new ArrayList<Event>();
@@ -143,12 +144,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void showCreateEventView(View view) {
-        /*Intent intent = new Intent(this, CreateEventActivity.class);
-        startActivity(intent);*/
-
-        createEvent(new Event("Nowe wydarzenie", "Nowe miejsce", Calendar.getInstance(), Calendar.getInstance()));
+        Intent intent = new Intent(this, CreateEventActivity.class);
+        startActivityForResult(intent, 12);
+//        createEvent(new Event("Nowe wydarzenie", "Nowe miejsce", Calendar.getInstance(), Calendar.getInstance()));
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if (requestCode == 12){
+            if (resultCode == RESULT_OK){
+                Calendar start = Calendar.getInstance(),
+                    end = Calendar.getInstance();
+                start.set(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
+                        data.getIntExtra("starthour", 0), data.getIntExtra("startminute", 0));
+                end.set(data.getIntExtra("endyear", 2000), data.getIntExtra("endmonth", 1), data.getIntExtra("endday", 1),
+                        data.getIntExtra("endhour", 0), data.getIntExtra("endminute", 0));
+                Event event = new Event(data.getStringExtra("name"), data.getStringExtra("place"), start, end);
+                createEvent(event);
+            }
+        }
+    }
     public void createEvent(Event event) {
         events.add(event);
         eventsListView.addView(new EventView(getBaseContext(), null, event));
