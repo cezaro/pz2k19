@@ -15,7 +15,8 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="30dp"
-        tools:layout_editor_absoluteY="56dp">
+        tools:layout_editor_absoluteY="56dp"
+        tools:ignore="MissingConstraints">
 
         <EditText
             android:id="@+id/nameTXT"

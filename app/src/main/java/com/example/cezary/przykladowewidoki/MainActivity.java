@@ -1,8 +1,15 @@
 package com.example.cezary.przykladowewidoki;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,7 +19,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+
+import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.joda.time.DateTime;
+import org.joda.time.Instant;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,19 +44,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     LinearLayout eventsListView;
 
+    public LocalDateTime actualDate = LocalDateTime.now();
+    public LocalDateTime tempDate;
+
+
+    Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        JodaTimeAndroid.init(this);
 
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCalendarPopup(v);
+            }
+        });
 
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateformat = new SimpleDateFormat("d MMMM");
-
-        toolbar.setTitle(dateformat.format(calendar.getTime()));
-        setSupportActionBar(toolbar);
+        setToolbarText();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -118,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
@@ -177,5 +204,81 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             EventView v = new EventView(getBaseContext(), null, e);
             eventsListView.addView(v);
         }
+    }
+
+    private void setToolbarText() {
+        LocalDateTime date = actualDate;
+
+        if(isToday(date)) {
+            toolbar.setTitle("Dzisiaj");
+        } else if(isTomorrow(date)){
+            toolbar.setTitle("Jutro");
+        } else if(false){
+            toolbar.setTitle("Wczoraj");
+        } else {
+            toolbar.setTitle(date.toString());
+        }
+
+        setSupportActionBar(toolbar);
+    }
+
+    private void showCalendarPopup(View v) {
+        Dialog myDialog = new Dialog(this);
+
+        myDialog.setContentView(R.layout.app_calendar_bar);
+
+        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        myDialog.show();
+
+        Button btn = myDialog.findViewById(R.id.selectDayBtn);
+        final CalendarView calendar = myDialog.findViewById(R.id.calendarView);
+
+        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                tempDate = new LocalDateTime(year, month + 1, dayOfMonth, 12, 0);
+                System.out.println(tempDate);
+            }
+        });
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actualDate = tempDate;
+                setToolbarText();
+            }
+        });
+    }
+
+    private boolean isToday(LocalDateTime date) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if(now.year().equals(date.year())) {
+            if(now.monthOfYear().equals(date.monthOfYear())) {
+                if(now.dayOfMonth().equals(date.dayOfMonth())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isTomorrow(LocalDateTime date) {
+        LocalDateTime now = LocalDateTime.now();
+        now = now.plusDays(1);
+
+        System.out.println(now);
+        System.out.println(date);
+
+        if(now.year().equals(date.year())) {
+            if(now.monthOfYear().equals(date.monthOfYear())) {
+                if(now.dayOfMonth().equals(date.dayOfMonth())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
