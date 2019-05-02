@@ -2,6 +2,7 @@ package com.example.cezary.przykladowewidoki;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.widget.PopupWindow;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -36,6 +38,9 @@ import org.joda.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -44,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     LinearLayout eventsListView;
 
-    public LocalDateTime actualDate = LocalDateTime.now();
+    public LocalDateTime actualDate;
     public LocalDateTime tempDate;
 
 
@@ -55,6 +60,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         JodaTimeAndroid.init(this);
 
+        String languageToLoad  = "pl";
+        Locale locale = new Locale(languageToLoad);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
+
+        DateTimeZone.setDefault(DateTimeZone.forID("Europe/Warsaw"));
+
+        actualDate = LocalDateTime.now();
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -79,31 +94,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         eventsListView = (LinearLayout) findViewById(R.id.eventsList);
 
         /* DEFAULT DATA */
-        Calendar start = Calendar.getInstance(),
-                end = Calendar.getInstance();
-
-        start.set(2019, 4, 18, 8, 0);
-        end.set(2019, 4, 18, 9, 0);
+        LocalDateTime start = new LocalDateTime(2019, 5, 1, 12, 0),
+                end = new LocalDateTime(2019, 5, 1, 13, 0);
 
         events.add(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
 
-        start.add(Calendar.HOUR, 1);
-        end.add(Calendar.HOUR, 1);
+        start = start.plusHours(1);
+        end = end.plusHours(1);
 
         events.add(new Event("Spotkanie na PWr", "C4 Politechnika Wrocławska, Janiszewskiego, Wrocław", start, end));
 
-        start.add(Calendar.HOUR, 1);
-        end.add(Calendar.HOUR, 1);
+        start = start.plusHours(1);
+        end = end.plusHours(1);
 
         events.add(new Event("Spotkanie w Nokii", "Strzegomska 36, 53-611 Wrocław", start, end));
 
-        start.add(Calendar.HOUR, 1);
-        end.add(Calendar.HOUR, 1);
+        start = start.minusHours(5);
+        end = end.minusHours(5);
 
         events.add(new Event("Spotkanie w Comarchu", "Jana Długosza 2-6, 51-162 Wrocław", start, end));
 
-        start.add(Calendar.HOUR, 1);
-        end.add(Calendar.HOUR, 1);
+        start = start.minusHours(6);
+        end = end.minusHours(6);
 
         events.add(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));
 
@@ -173,19 +185,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showCreateEventView(View view) {
         Intent intent = new Intent(this, CreateEventActivity.class);
         startActivityForResult(intent, 12);
-//        createEvent(new Event("Nowe wydarzenie", "Nowe miejsce", Calendar.getInstance(), Calendar.getInstance()));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if (requestCode == 12){
-            if (resultCode == RESULT_OK){
-                Calendar start = Calendar.getInstance(),
-                    end = Calendar.getInstance();
-                start.set(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
+        if (requestCode == 12) {
+            if (resultCode == RESULT_OK) {
+                LocalDateTime start = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
                         data.getIntExtra("starthour", 0), data.getIntExtra("startminute", 0));
-                end.set(data.getIntExtra("endyear", 2000), data.getIntExtra("endmonth", 1), data.getIntExtra("endday", 1),
+
+                LocalDateTime end = new LocalDateTime(data.getIntExtra("endyear", 2000), data.getIntExtra("endmonth", 1), data.getIntExtra("endday", 1),
                         data.getIntExtra("endhour", 0), data.getIntExtra("endminute", 0));
+
                 Event event = new Event(data.getStringExtra("name"), data.getStringExtra("place"), start, end);
                 createEvent(event);
             }
@@ -197,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void refreshEvents() {
+        sortEvents();
         eventsListView.removeAllViews();
 
         for(Event e : events)
@@ -213,31 +225,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setTitle("Dzisiaj");
         } else if(isTomorrow(date)){
             toolbar.setTitle("Jutro");
-        } else if(false){
+        } else if(isYesterday(date)){
             toolbar.setTitle("Wczoraj");
         } else {
-            toolbar.setTitle(date.toString());
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("d MMMM YYYY");
+
+            toolbar.setTitle(date.toString(fmt));
         }
 
         setSupportActionBar(toolbar);
     }
 
     private void showCalendarPopup(View v) {
-        Dialog myDialog = new Dialog(this);
+        final Dialog myDialog = new Dialog(this);
 
         myDialog.setContentView(R.layout.app_calendar_bar);
 
-        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        myDialog.show();
-
         Button btn = myDialog.findViewById(R.id.selectDayBtn);
         final CalendarView calendar = myDialog.findViewById(R.id.calendarView);
+
+        calendar.setDate(actualDate.toDateTime().getMillis());
+
+        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        myDialog.show();
 
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 tempDate = new LocalDateTime(year, month + 1, dayOfMonth, 12, 0);
-                System.out.println(tempDate);
             }
         });
 
@@ -246,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View v) {
                 actualDate = tempDate;
                 setToolbarText();
+                myDialog.hide();
             }
         });
     }
@@ -253,11 +269,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isToday(LocalDateTime date) {
         LocalDateTime now = LocalDateTime.now();
 
-        if(now.year().equals(date.year())) {
-            if(now.monthOfYear().equals(date.monthOfYear())) {
-                if(now.dayOfMonth().equals(date.dayOfMonth())) {
-                    return true;
-                }
+        if(now.year().equals(date.year()) && now.monthOfYear().equals(date.monthOfYear())) {
+            if(now.dayOfMonth().equals(date.dayOfMonth())) {
+                return true;
             }
         }
 
@@ -268,17 +282,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocalDateTime now = LocalDateTime.now();
         now = now.plusDays(1);
 
-        System.out.println(now);
-        System.out.println(date);
-
-        if(now.year().equals(date.year())) {
-            if(now.monthOfYear().equals(date.monthOfYear())) {
-                if(now.dayOfMonth().equals(date.dayOfMonth())) {
-                    return true;
-                }
+        if(now.year().equals(date.year()) && now.monthOfYear().equals(date.monthOfYear())) {
+            if(now.dayOfMonth().equals(date.dayOfMonth())) {
+                return true;
             }
         }
 
         return false;
+    }
+
+    private boolean isYesterday(LocalDateTime date) {
+        LocalDateTime now = new LocalDateTime();
+            now = now.minusDays(1);
+
+        if(now.year().equals(date.year()) && now.monthOfYear().equals(date.monthOfYear())) {
+            if(now.dayOfMonth().equals(date.dayOfMonth())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void sortEvents() {
+        Collections.sort(events, new Comparator<Event>() {
+            public int compare(Event e1, Event e2) {
+                return e1.startDate.compareTo(e2.startDate);
+            }
+        });
     }
 }

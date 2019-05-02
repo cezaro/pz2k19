@@ -1,18 +1,22 @@
 package com.example.cezary.przykladowewidoki;
 
+import android.support.annotation.NonNull;
+
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
 public class Event implements Serializable {
-
     public String name, place;
-    public Calendar startDate;
-    public Calendar endDate;
+    public LocalDateTime startDate;
+    public LocalDateTime endDate;
 
-    public Event(String name, String place, Calendar startDate, Calendar endDate) {
+    public Event(String name, String place, LocalDateTime startDate, LocalDateTime endDate) {
         this.name = name;
         this.place = place;
         this.startDate = startDate;
@@ -35,25 +39,25 @@ public class Event implements Serializable {
         this.place = place;
     }
 
-    public Calendar getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Calendar startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
-    public Calendar getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Calendar endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 
     public String getDateText() {
-        SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
 
-        return "od " + dateformat.format(startDate.getTime()) + " do " + dateformat.format(endDate.getTime());
+        return "od " + startDate.toString(fmt) + " do " + endDate.toString(fmt);
     }
 }
