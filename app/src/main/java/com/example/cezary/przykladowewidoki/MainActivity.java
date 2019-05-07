@@ -24,6 +24,9 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
+
+import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -40,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public LocalDateTime actualDate;
     public LocalDateTime tempDate;
 
+    private CompactCalendarView compactCalendarView;
 
     Toolbar toolbar;
 
@@ -97,27 +102,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LocalDateTime start = new LocalDateTime(2019, 5, 1, 12, 0),
                 end = new LocalDateTime(2019, 5, 1, 13, 0);
 
-        events.add(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
+        createEvent(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
 
         start = start.plusHours(1);
         end = end.plusHours(1);
 
-        events.add(new Event("Spotkanie na PWr", "C4 Politechnika Wrocławska, Janiszewskiego, Wrocław", start, end));
+        createEvent(new Event("Spotkanie na PWr", "C4 Politechnika Wrocławska, Janiszewskiego, Wrocław", start, end));
 
         start = start.plusHours(1);
         end = end.plusHours(1);
 
-        events.add(new Event("Spotkanie w Nokii", "Strzegomska 36, 53-611 Wrocław", start, end));
+        createEvent(new Event("Spotkanie w Nokii", "Strzegomska 36, 53-611 Wrocław", start, end));
 
         start = start.minusHours(5);
         end = end.minusHours(5);
 
-        events.add(new Event("Spotkanie w Comarchu", "Jana Długosza 2-6, 51-162 Wrocław", start, end));
+        createEvent(new Event("Spotkanie w Comarchu", "Jana Długosza 2-6, 51-162 Wrocław", start, end));
 
         start = start.minusHours(6);
         end = end.minusHours(6);
 
-        events.add(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));
+        createEvent(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));
 
         
         refreshEvents();
@@ -164,8 +169,71 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, CalendarActivity.class);
-            startActivity(intent);
+            final Dialog myDialog = new Dialog(this);
+
+            myDialog.setContentView(R.layout.app_compact_calendar_bar);
+
+            compactCalendarView = myDialog.findViewById(R.id.compactcalendarView);
+            compactCalendarView.displayOtherMonthDays(false);
+            compactCalendarView.setUseThreeLetterAbbreviation(true);
+            compactCalendarView.setFirstDayOfWeek(Calendar.MONDAY);
+            compactCalendarView.setIsRtl(false);
+            compactCalendarView.invalidate();
+
+            for(Event e : events) {
+                compactCalendarView.addEvent(e.getCalendarEventObject());
+            }
+
+            System.out.println("EVENTS " + compactCalendarView.getEventsForMonth(LocalDateTime.now().toDate()).size());
+
+            Button showPreviousMonthBut = myDialog.findViewById(R.id.prev_button);
+            Button showNextMonthBut = myDialog.findViewById(R.id.next_button);
+            Button btn = myDialog.findViewById(R.id.selectDayBtn);
+            final TextView monthName = myDialog.findViewById(R.id.monthName);
+
+            myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            myDialog.show();
+
+            showPreviousMonthBut.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    compactCalendarView.scrollLeft();
+                }
+            });
+
+            showNextMonthBut.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    compactCalendarView.scrollRight();
+                }
+            });
+
+            compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
+
+                @Override
+                public void onDayClick(Date dateClicked) {
+                    tempDate = LocalDateTime.fromDateFields(dateClicked);
+                }
+
+                @Override
+                public void onMonthScroll(Date firstDayOfNewMonth) {
+                    LocalDateTime date = LocalDateTime.fromDateFields(firstDayOfNewMonth);
+                    int month = date.getMonthOfYear();
+
+                    String [] months = {"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
+
+                    monthName.setText(months[month - 1]);
+                }
+            });
+
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actualDate = tempDate;
+                    setToolbarText();
+                    myDialog.hide();
+                }
+            });
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -202,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+
     public void createEvent(Event event) {
         events.add(event);
         eventsListView.addView(new EventView(getBaseContext(), null, event));
@@ -244,7 +313,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button btn = myDialog.findViewById(R.id.selectDayBtn);
         final CalendarView calendar = myDialog.findViewById(R.id.calendarView);
 
-        calendar.setDate(actualDate.toDateTime().getMillis());
+        LocalDateTime newDate = actualDate.plusDays(1);
+        calendar.setDate(newDate.toDateTime().getMillis());
 
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         myDialog.show();

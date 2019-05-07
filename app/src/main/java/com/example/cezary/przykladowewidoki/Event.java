@@ -1,5 +1,6 @@
 package com.example.cezary.przykladowewidoki;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 
 import org.joda.time.LocalDateTime;
@@ -59,5 +60,10 @@ public class Event implements Serializable {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
 
         return "od " + startDate.toString(fmt) + " do " + endDate.toString(fmt);
+    }
+
+    public com.github.sundeepk.compactcalendarview.domain.Event getCalendarEventObject() {
+
+        return new com.github.sundeepk.compactcalendarview.domain.Event(Color.rgb(0, 0, 255), this.startDate.toDateTime().getMillis());
     }
 }

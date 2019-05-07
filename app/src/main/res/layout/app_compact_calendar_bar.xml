@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
+
+            <Button
+                android:id="@+id/prev_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:background="#fff"
+                android:text="&lt;"
+                style="?android:attr/borderlessButtonStyle"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/monthName"
+                android:text="Maj"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"/>
+
+            <Button
+                android:id="@+id/next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="&gt;"
+                android:layout_alignParentRight="true"
+                android:background="#fff"
+                style="?android:attr/borderlessButtonStyle"/>
+        </RelativeLayout >
+
+        <com.github.sundeepk.compactcalendarview.CompactCalendarView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/compactcalendarView"
+            android:layout_width="fill_parent"
+            android:layout_height="300dp"
+            app:compactCalendarTargetHeight="300dp"
+            app:compactCalendarTextSize="12sp"
+            app:compactCalendarBackgroundColor="#fff"
+            app:compactCalendarTextColor="#333"
+            app:compactCalendarCurrentSelectedDayBackgroundColor="@color/colorAccent"
+            app:compactCalendarCurrentSelectedDayTextColor="#fff"
+            app:compactCalendarCurrentDayBackgroundColor="#fff"
+            app:compactCalendarCurrentDayTextColor="@color/colorAccent"
+            app:compactCalendarMultiEventIndicatorColor="#fff"
+            app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="true"
+            app:compactCalendarCurrentDayIndicatorStyle="fill_large_indicator"
+            app:compactCalendarEventIndicatorStyle="small_indicator"
+            />
+
+
+        <Button
+            android:id="@+id/selectDayBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:text="Przejdź"
+            android:textColor="#fff" />
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>
