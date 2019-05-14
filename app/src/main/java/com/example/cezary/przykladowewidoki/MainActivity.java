@@ -25,6 +25,7 @@ import android.widget.CalendarView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.sundeepk.compactcalendarview.CompactCalendarView;
 
@@ -102,8 +103,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         LocalDateTime now = LocalDateTime.now();
 
-        LocalDateTime start = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 12, 0),
-                end = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 13, 0);
+        /*LocalDateTime start = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 12, 0),
+                end = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 13, 0);*/
+
+        LocalDateTime start = LocalDateTime.now(),
+                end = LocalDateTime.now().plusHours(1);
 
         createEvent(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
 

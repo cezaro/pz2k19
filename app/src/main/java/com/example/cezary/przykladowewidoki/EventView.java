@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EventView extends LinearLayout {
     Event event;
@@ -33,17 +34,26 @@ public class EventView extends LinearLayout {
         nameText = findViewById(R.id.eventName);
         placeText = findViewById(R.id.eventPlace);
         dateText = findViewById(R.id.eventDate);
-        initComponents();
+
+        this.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getContext(), "asd", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        Log.d("test","dziala");
+        super.onTouchEvent(event);
 
         return true;
     }
 
     private void initComponents() {
+
        /* artistText = (TextView) findViewById(R.id.artist_Text);
 
         trackText = (TextView) findViewById(R.id.track_Text);
