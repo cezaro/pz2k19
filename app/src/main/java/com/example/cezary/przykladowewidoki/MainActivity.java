@@ -36,6 +36,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -100,11 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         eventsListView = (LinearLayout) findViewById(R.id.eventsList);
 
         /* DEFAULT DATA */
-
-        LocalDateTime now = LocalDateTime.now();
-
-        /*LocalDateTime start = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 12, 0),
-                end = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 13, 0);*/
 
         LocalDateTime start = LocalDateTime.now(),
                 end = LocalDateTime.now().plusHours(1);
@@ -176,71 +172,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            final Dialog myDialog = new Dialog(this);
-
-            myDialog.setContentView(R.layout.app_compact_calendar_bar);
-
-            compactCalendarView = myDialog.findViewById(R.id.compactcalendarView);
-            compactCalendarView.displayOtherMonthDays(false);
-            compactCalendarView.setUseThreeLetterAbbreviation(true);
-            compactCalendarView.setFirstDayOfWeek(Calendar.MONDAY);
-            compactCalendarView.setIsRtl(false);
-            compactCalendarView.invalidate();
-
-            for(Event e : events) {
-                compactCalendarView.addEvent(e.getCalendarEventObject());
-            }
-
-            System.out.println("EVENTS " + compactCalendarView.getEventsForMonth(LocalDateTime.now().toDate()).size());
-
-            Button showPreviousMonthBut = myDialog.findViewById(R.id.prev_button);
-            Button showNextMonthBut = myDialog.findViewById(R.id.next_button);
-            Button btn = myDialog.findViewById(R.id.selectDayBtn);
-            final TextView monthName = myDialog.findViewById(R.id.monthName);
-
-            myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            myDialog.show();
-
-            showPreviousMonthBut.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    compactCalendarView.scrollLeft();
-                }
-            });
-
-            showNextMonthBut.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    compactCalendarView.scrollRight();
-                }
-            });
-
-            compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
-
-                @Override
-                public void onDayClick(Date dateClicked) {
-                    tempDate = LocalDateTime.fromDateFields(dateClicked);
-                }
-
-                @Override
-                public void onMonthScroll(Date firstDayOfNewMonth) {
-                    LocalDateTime date = LocalDateTime.fromDateFields(firstDayOfNewMonth);
-                    int month = date.getMonthOfYear();
-
-                    String [] months = {"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
-
-                    monthName.setText(months[month - 1]);
-                }
-            });
-
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    actualDate = tempDate;
-                    setToolbarText();
-                    myDialog.hide();
-                }
-            });
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -329,22 +260,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void showCalendarPopup(View v) {
         final Dialog myDialog = new Dialog(this);
+        final String [] months = {"Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"};
 
-        myDialog.setContentView(R.layout.app_calendar_bar);
+        myDialog.setContentView(R.layout.app_compact_calendar_bar);
 
+        compactCalendarView = myDialog.findViewById(R.id.compactcalendarView);
+        compactCalendarView.displayOtherMonthDays(false);
+        compactCalendarView.setUseThreeLetterAbbreviation(true);
+        compactCalendarView.setFirstDayOfWeek(Calendar.MONDAY);
+        compactCalendarView.setIsRtl(false);
+        compactCalendarView.invalidate();
+
+        for(Event e : events) {
+            compactCalendarView.addEvent(e.getCalendarEventObject());
+        }
+
+        Button showPreviousMonthBut = myDialog.findViewById(R.id.prev_button);
+        Button showNextMonthBut = myDialog.findViewById(R.id.next_button);
         Button btn = myDialog.findViewById(R.id.selectDayBtn);
-        final CalendarView calendar = myDialog.findViewById(R.id.calendarView);
 
-        LocalDateTime newDate = actualDate.plusDays(1);
-        calendar.setDate(newDate.toDateTime().getMillis());
+        final TextView monthName = myDialog.findViewById(R.id.monthName);
 
-        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        monthName.setText(months[LocalDateTime.now().getMonthOfYear() - 1] + " " + LocalDateTime.now().getYear());
+
+
+        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         myDialog.show();
 
-        calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+        showPreviousMonthBut.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                tempDate = new LocalDateTime(year, month + 1, dayOfMonth, 12, 0);
+            public void onClick(View v) {
+                compactCalendarView.scrollLeft();
+            }
+        });
+
+        showNextMonthBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                compactCalendarView.scrollRight();
+            }
+        });
+
+        compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
+
+            @Override
+            public void onDayClick(Date dateClicked) {
+                tempDate = LocalDateTime.fromDateFields(dateClicked);
+            }
+
+            @Override
+            public void onMonthScroll(Date firstDayOfNewMonth) {
+                LocalDateTime date = LocalDateTime.fromDateFields(firstDayOfNewMonth);
+                int month = date.getMonthOfYear();
+
+
+                monthName.setText(months[month - 1] + " " + date.getYear());
             }
         });
 

@@ -59,11 +59,10 @@
             app:compactCalendarTextColor="#333"
             app:compactCalendarCurrentSelectedDayBackgroundColor="@color/colorAccent"
             app:compactCalendarCurrentSelectedDayTextColor="#fff"
-            app:compactCalendarCurrentDayBackgroundColor="#fff"
+            app:compactCalendarCurrentDayBackgroundColor="@android:color/transparent"
             app:compactCalendarCurrentDayTextColor="@color/colorAccent"
-            app:compactCalendarMultiEventIndicatorColor="#fff"
+            app:compactCalendarMultiEventIndicatorColor="@color/colorAccent"
             app:compactCalendarShouldSelectFirstDayOfMonthOnScroll="true"
-            app:compactCalendarCurrentDayIndicatorStyle="fill_large_indicator"
             app:compactCalendarEventIndicatorStyle="small_indicator"
             />
 

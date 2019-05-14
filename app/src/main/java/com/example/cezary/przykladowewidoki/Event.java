@@ -64,6 +64,6 @@ public class Event implements Serializable {
 
     public com.github.sundeepk.compactcalendarview.domain.Event getCalendarEventObject() {
 
-        return new com.github.sundeepk.compactcalendarview.domain.Event(Color.rgb(0, 0, 255), this.startDate.toDateTime().getMillis());
+        return new com.github.sundeepk.compactcalendarview.domain.Event(Color.rgb(61, 90, 254), this.startDate.toDateTime().getMillis());
     }
 }
