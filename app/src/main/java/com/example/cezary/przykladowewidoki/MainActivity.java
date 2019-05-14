@@ -99,8 +99,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         eventsListView = (LinearLayout) findViewById(R.id.eventsList);
 
         /* DEFAULT DATA */
-        LocalDateTime start = new LocalDateTime(2019, 5, 1, 12, 0),
-                end = new LocalDateTime(2019, 5, 1, 13, 0);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime start = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 12, 0),
+                end = new LocalDateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), 13, 0);
 
         createEvent(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
 
@@ -273,7 +276,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void createEvent(Event event) {
         events.add(event);
-        eventsListView.addView(new EventView(getBaseContext(), null, event));
+
+        refreshEvents();
     }
 
     private void refreshEvents() {
