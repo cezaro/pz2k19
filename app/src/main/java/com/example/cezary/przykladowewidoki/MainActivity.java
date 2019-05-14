@@ -284,10 +284,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sortEvents();
         eventsListView.removeAllViews();
 
+        int count = 0;
         for(Event e : events)
         {
-            EventView v = new EventView(getBaseContext(), null, e);
-            eventsListView.addView(v);
+            if(e.startDate.compareTo(LocalDateTime.now()) > 0) {
+                EventView v = new EventView(getBaseContext(), null, e);
+                eventsListView.addView(v);
+                count++;
+            }
+        }
+
+        if(count == 0)
+        {
+            TextView noEventsText = new TextView(getBaseContext());
+            noEventsText.setText("Na dzisiaj nie ma zaplanowanych wydarzeń");
+            noEventsText.setGravity(Gravity.CENTER);
+            noEventsText.setPadding(0, 15, 0, 15);
+
+            eventsListView.addView(noEventsText);
         }
     }
 
