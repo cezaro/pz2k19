@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,6 +19,10 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,6 +62,37 @@ public class CreateEventActivity extends AppCompatActivity {
         mEndDateTXT.setKeyListener(null);
         mStartTimeTXT.setKeyListener(null);
         mEndTimeTXT.setKeyListener(null);
+
+        // Filling inputs with actual time and date
+        LocalDateTime now = LocalDateTime.now().secondOfMinute().roundFloorCopy();
+
+        if(now.getMinuteOfHour() % 5 != 0)
+        {
+            int toRounded = now.getMinuteOfHour() % 5;
+            now = now.plusMinutes(5 - toRounded);
+        }
+
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm");
+        mStartTimeTXT.setText(now.toString(fmt));
+        sMinute = now.getMinuteOfHour();
+        sHour = now.getHourOfDay();
+
+        now = now.plusMinutes(15);
+        mEndTimeTXT.setText(now.toString(fmt));
+        eMinute = now.getMinuteOfHour();
+        eHour = now.getHourOfDay();
+
+        fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+        mStartDateTXT.setText(now.toString(fmt));
+        mEndDateTXT.setText(now.toString(fmt));
+
+        sDay = now.getDayOfMonth();
+        sMonth = now.getMonthOfYear();
+        sYear = now.getYear();
+
+        eDay = now.getDayOfMonth();
+        eMonth = now.getMonthOfYear();
+        eYear = now.getYear();
 
         mStartTimeTXT.setOnClickListener(new View.OnClickListener() {
             @Override
