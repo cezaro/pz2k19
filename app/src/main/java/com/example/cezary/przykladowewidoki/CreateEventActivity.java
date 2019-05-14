@@ -97,7 +97,7 @@ public class CreateEventActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         sYear = year;
-                        sMonth = month;
+                        sMonth = month + 1;
                         sDay = dayOfMonth;
                         mStartDateTXT.setText(dayOfMonth + "/" + month + "/" + year);
                         eYear = year;
