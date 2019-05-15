@@ -15,7 +15,20 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
+        NotificationEventReceiver.setupAlarm(getApplication());
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        // handleIntent();
     }
 }
