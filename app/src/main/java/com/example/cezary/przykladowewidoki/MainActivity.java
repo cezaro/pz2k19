@@ -2,6 +2,7 @@ package com.example.cezary.przykladowewidoki;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -40,6 +41,8 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,6 +50,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Properties;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
