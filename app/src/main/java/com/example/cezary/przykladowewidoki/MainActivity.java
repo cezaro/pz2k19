@@ -373,4 +373,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
+
+    private String loadProperty(String propertyName) {
+        AssetManager assetManager = getResources().getAssets();
+
+        try {
+            InputStream inputStream = assetManager.open("keystore.properties");
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            return properties.getProperty(propertyName);
+        } catch (IOException e) {
+            System.err.println("Nie znaleziono pliku");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
