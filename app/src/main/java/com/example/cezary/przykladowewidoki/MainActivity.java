@@ -55,7 +55,7 @@ import java.util.Properties;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    ArrayList<Event> events = new ArrayList<Event>();
+    static ArrayList<Event> events = new ArrayList<Event>();
 
     LinearLayout eventsListView;
 
