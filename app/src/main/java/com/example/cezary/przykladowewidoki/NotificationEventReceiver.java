@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import org.joda.time.LocalDateTime;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -17,13 +19,16 @@ public class NotificationEventReceiver extends WakefulBroadcastReceiver {
 
     private static final int NOTIFICATIONS_INTERVAL_IN_HOURS = 1;
 
+    //LocalDateTime wydarz = LocalDateTime.now().plusMinutes(11);
+
     public static void setupAlarm(Context context) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent alarmIntent = getStartPendingIntent(context);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                getTriggerAt(new Date()),
-                NOTIFICATIONS_INTERVAL_IN_HOURS * AlarmManager.INTERVAL_FIFTEEN_MINUTES/30,
-                alarmIntent);
+
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            PendingIntent alarmIntent = getStartPendingIntent(context);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    getTriggerAt(new Date()),
+                    NOTIFICATIONS_INTERVAL_IN_HOURS * AlarmManager.INTERVAL_FIFTEEN_MINUTES / 15,
+                    alarmIntent);
     }
 
     public static void cancelAlarm(Context context) {
