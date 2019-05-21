@@ -24,12 +24,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:layout_weight="1"
+            android:background="@drawable/edit_text_background"
             android:ems="10"
             android:hint="Nazwa"
             android:inputType="textPersonName"
             android:padding="15dp" />
 
-        <EditText
+        <!--<EditText
             android:id="@+id/placeTXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,14 +39,20 @@
             android:ems="10"
             android:hint="Miejsce"
             android:inputType="textPersonName"
-            android:padding="15dp" />
+            android:padding="15dp" />-->
+
+        <fragment android:id="@+id/autocomplete_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Początek:" />
+            android:text="Data:" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,35 +64,31 @@
                 android:id="@+id/startTimeTXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
                 android:layout_weight="3"
+                android:background="@drawable/edit_text_background"
                 android:clickable="true"
                 android:ems="10"
                 android:focusable="false"
-                android:hint="Godzina"
+                android:hint="Początek"
                 android:inputType="time"
                 android:padding="15dp" />
 
             <EditText
-                android:id="@+id/startDateTXT"
+                android:id="@+id/endTimeTXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="3"
+                android:background="@drawable/edit_text_background"
                 android:clickable="true"
                 android:ems="10"
                 android:focusable="false"
-                android:hint="Data"
-                android:inputType="date"
-                android:padding="15dp"
-                tools:layout_editor_absoluteX="84dp"
-                tools:layout_editor_absoluteY="208dp" />
-        </LinearLayout>
+                android:hint="Koniec"
+                android:inputType="time"
+                android:padding="15dp" />
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Koniec:" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,22 +97,11 @@
             android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/endTimeTXT"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:clickable="true"
-                android:ems="10"
-                android:focusable="false"
-                android:hint="Godzina"
-                android:inputType="time"
-                android:padding="15dp" />
-
-            <EditText
-                android:id="@+id/endDateTXT"
+                android:id="@+id/startDateTXT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
+                android:background="@drawable/edit_text_background"
                 android:clickable="true"
                 android:ems="10"
                 android:focusable="false"

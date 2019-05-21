@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 LocalDateTime start = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
                         data.getIntExtra("starthour", 0), data.getIntExtra("startminute", 0));
 
-                LocalDateTime end = new LocalDateTime(data.getIntExtra("endyear", 2000), data.getIntExtra("endmonth", 1), data.getIntExtra("endday", 1),
+                LocalDateTime end = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
                         data.getIntExtra("endhour", 0), data.getIntExtra("endminute", 0));
 
                 Event event = new Event(data.getStringExtra("name"), data.getStringExtra("place"), start, end);
