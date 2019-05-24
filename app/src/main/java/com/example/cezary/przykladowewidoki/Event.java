@@ -3,6 +3,7 @@ package com.example.cezary.przykladowewidoki;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -14,17 +15,35 @@ import java.util.Date;
 
 public class Event implements Serializable {
     public Integer id;
-    public String name, place;
+    public String name;
+    public String place;
+    public double placeLatitude;
+    public double placeLongitude;
     public LocalDateTime startDate;
     public LocalDateTime endDate;
 
-    public Event(Integer id,String name, String place, LocalDateTime startDate, LocalDateTime endDate) {
-        this.id =id;
+    public Event() {}
+
+    public Event(Integer id, String name, String place, double placeLatitude, double placeLongitude, LocalDateTime startDate, LocalDateTime endDate) {
+        this.id = id;
         this.name = name;
         this.place = place;
+        this.placeLatitude = placeLatitude;
+        this.placeLongitude = placeLongitude;
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public Event(Integer id, String name, String place, double placeLatitude, double placeLongitude, long startDate, long endDate) {
+        this.id = id;
+        this.name = name;
+        this.place = place;
+        this.placeLatitude = placeLatitude;
+        this.placeLongitude = placeLongitude;
+        this.startDate = new LocalDateTime(startDate * 1000L);
+        this.endDate = new LocalDateTime(endDate * 1000L);
+    }
+
     public Integer getId() {return id;}
     public void setId(Integer id) {this.id = id;}
     public String getName() {

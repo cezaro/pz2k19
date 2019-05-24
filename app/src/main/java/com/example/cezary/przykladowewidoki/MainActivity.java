@@ -49,6 +49,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -63,8 +64,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public LocalDateTime tempDate;
 
     private CompactCalendarView compactCalendarView;
-
     Toolbar toolbar;
+
+    private Manager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,15 +107,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         /* DEFAULT DATA */
 
+        dbManager = new Manager(this);
+        dbManager.open();
+
         LocalDateTime start = LocalDateTime.now(),
                 end = LocalDateTime.now().plusHours(1);
 
-        createEvent(new Event("Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
+        events = dbManager.getDayEvents(LocalDateTime.now());
+        Log.d("LOGI", events.size() + " ");
 
-        start = start.plusHours(1);
+//        long test = dbManager.insertEvent(new Event(null, "Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
+        //createEvent();
+
+//
+
+        /*start = start.plusHours(1);
         end = end.plusHours(1);
 
-        createEvent(new Event("Spotkanie na PWr", "C4 Politechnika Wrocławska, Janiszewskiego, Wrocław", start, end));
+        createEvent(new Event(null, "Spotkanie na PWr", "C4 Politechnika Wrocławska, Janiszewskiego, Wrocław", start, end));
 
         start = start.plusHours(1);
         end = end.plusHours(1);
@@ -128,8 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         start = start.minusHours(6);
         end = end.minusHours(6);
 
-        createEvent(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));
-
+        createEvent(new Event("Spotkanie biznesowe w Sky Tower", "Powstańców Śląskich 95, 53-332 Wrocław", start, end));*/
         
         refreshEvents();
     }
@@ -206,8 +216,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 LocalDateTime end = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
                         data.getIntExtra("endhour", 0), data.getIntExtra("endminute", 0));
 
-                Event event = new Event(data.getStringExtra("name"), data.getStringExtra("place"), start, end);
-                createEvent(event);
+//                Event event = new Event(null, data.getStringExtra("name"), data.getStringExtra("place"), start, end);
+//                createEvent(event);
             }
         }
     }
@@ -225,11 +235,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int count = 0;
         for(Event e : events)
         {
-            if(e.startDate.compareTo(LocalDateTime.now()) > 0) {
+            EventView v = new EventView(getBaseContext(), null, e);
+            eventsListView.addView(v);
+            count++;
+            /*if(e.startDate.compareTo(LocalDateTime.now()) > 0) {
                 EventView v = new EventView(getBaseContext(), null, e);
                 eventsListView.addView(v);
                 count++;
-            }
+            }*/
         }
 
         if(count == 0)
@@ -274,7 +287,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         compactCalendarView.setIsRtl(false);
         compactCalendarView.invalidate();
 
-        for(Event e : events) {
+        ArrayList<Event> monthEvents = dbManager.getMonthEvents(LocalDateTime.now());
+        for(Event e : monthEvents) {
             compactCalendarView.addEvent(e.getCalendarEventObject());
         }
 
@@ -286,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         monthName.setText(months[LocalDateTime.now().getMonthOfYear() - 1] + " " + LocalDateTime.now().getYear());
 
-
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         myDialog.show();
 
@@ -294,6 +307,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 compactCalendarView.scrollLeft();
+                compactCalendarView.removeAllEvents();
+
+                LocalDateTime selectedMonth = new LocalDateTime(compactCalendarView.getFirstDayOfCurrentMonth());
+                ArrayList<Event> monthEvents = dbManager.getMonthEvents(selectedMonth);
+                for(Event e : monthEvents) {
+                    compactCalendarView.addEvent(e.getCalendarEventObject());
+                }
             }
         });
 
@@ -301,6 +321,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 compactCalendarView.scrollRight();
+                compactCalendarView.removeAllEvents();
+
+                LocalDateTime selectedMonth = new LocalDateTime(compactCalendarView.getFirstDayOfCurrentMonth());
+                ArrayList<Event> monthEvents = dbManager.getMonthEvents(selectedMonth);
+                for(Event e : monthEvents) {
+                    compactCalendarView.addEvent(e.getCalendarEventObject());
+                }
             }
         });
 
@@ -377,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private String loadProperty(String propertyName) {
+    /*private String loadProperty(String propertyName) {
         AssetManager assetManager = getResources().getAssets();
 
         try {
@@ -392,5 +419,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         return null;
-    }
+    }*/
 }

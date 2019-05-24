@@ -9,6 +9,12 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+
+import java.util.ArrayList;
+
 public class Manager {
     private static final String DEBUG_TAG = "SqLiteTodoManager";
     private static final int DB_VERSION = 1;
@@ -16,32 +22,44 @@ public class Manager {
     private static final String DB_EVENTS_TABLE = "events";
 
     public static final String KEY_ID = "_id";
-
     public static final int ID_COLUMN = 0;
-    public static final String KEY_NAME = "name";
 
+    public static final String KEY_NAME = "name";
     public static final int NAME_COLUMN = 1;
-    public static final String KEY_START_DATE = "start_date";
-    public static final int START_DATE_COLUMN = 2;
-    public static final String KEY_END_DATE = "end_date";
-    public static final int END_DATE_COLUMN = 3;
+
     public static final String KEY_PLACE = "place";
-    public static final int PLACE_COLUMN = 4;
+    public static final int PLACE_COLUMN = 2;
+
+    public static final String KEY_PLACE_LATITUDE = "place_latitude";
+    public static final int PLACE_LATITUDE_COLUMN = 3;
+
+    public static final String KEY_PLACE_LONGITUDE = "place_longitude";
+    public static final int PLACE_LONGITUDE_COLUMN = 4;
+
+    public static final String KEY_START_DATE = "start_date";
+    public static final int START_DATE_COLUMN = 5;
+
+    public static final String KEY_END_DATE = "end_date";
+    public static final int END_DATE_COLUMN = 6;
 
     private SQLiteDatabase db;
     private Context context;
     private DatabaseHelper dbHelper;
 
-    private static final String DB_CREATE_EVENTS_TABLE =
-           " CREATE TABLE events (_id	INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT, start_date	INTEGER, end_date	INTEGER, place	TEXT)";
-    private static final String DROP_EVENTS_TABLE =
-            "DROP TABLE IF EXISTS events " ;
+    private static final String DB_CREATE_EVENTS_TABLE = "CREATE TABLE `events` (" +
+        "`_id` INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "`name` TEXT," +
+        "`place` TEXT," +
+        "`place_latitude` NUMERIC," +
+        "`place_longitude` NUMERIC," +
+        "`start_date` INTEGER," +
+        "`end_date` INTEGER" +
+    ")";
 
-
+    private static final String DROP_EVENTS_TABLE = "DROP TABLE IF EXISTS events " ;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        public DatabaseHelper(Context context, String name,
-                              CursorFactory factory, int version) {
+        public DatabaseHelper(Context context, String name, CursorFactory factory, int version) {
             super(context, name, factory, version);
         }
 
@@ -83,13 +101,17 @@ public class Manager {
         dbHelper.close();
     }
 
-    public long insertEvent(Event event) {
-        ContentValues neweventValues = new ContentValues();
-        neweventValues.put(KEY_NAME, event.name);
-        neweventValues.put(KEY_START_DATE, event.startDate.toDateTime().getMillis()/1000);
-        neweventValues.put(KEY_END_DATE, event.endDate.toDateTime().getMillis()/1000);
-        neweventValues.put(KEY_PLACE, event.place);
-        return db.insert(DB_EVENTS_TABLE, null, neweventValues);
+    public int insertEvent(Event event) {
+        ContentValues newEventValues = new ContentValues();
+        newEventValues.put(KEY_NAME, event.name);
+        newEventValues.put(KEY_PLACE, event.place);
+        newEventValues.put(KEY_PLACE_LATITUDE, event.placeLatitude);
+        newEventValues.put(KEY_PLACE_LONGITUDE, event.placeLongitude);
+        newEventValues.put(KEY_START_DATE, event.startDate.toDateTime().getMillis()/1000);
+        newEventValues.put(KEY_END_DATE, event.endDate.toDateTime().getMillis()/1000);
+
+        event.id = (int) db.insert(DB_EVENTS_TABLE, null, newEventValues);
+        return event.id;
     }
 
 
@@ -127,20 +149,59 @@ public class Manager {
         return db.query(DB_EVENTS_TABLE, columns, null, null, null, null, null);
     }
 
-    public Event getEvent(Integer id) {
+    public ArrayList<Event> getDayEvents(LocalDateTime date) {
+        long dayStart = date.toLocalDate().toDateTimeAtStartOfDay().getMillis() / 1000L;
+        long endStart = date.plusDays(1).toLocalDate().toDateTimeAtStartOfDay().getMillis() / 1000L;
 
-        String[] columns = {KEY_ID, KEY_NAME, KEY_START_DATE, KEY_END_DATE, KEY_PLACE};
+        Cursor cursor = db.rawQuery("SELECT * FROM `" + DB_EVENTS_TABLE + "` WHERE `start_date` >= '" + dayStart + "' AND `start_date` <= '" + endStart + "'", null);
+        return parseEvents(cursor);
+    }
+
+    public ArrayList<Event> getMonthEvents(LocalDateTime date) {
+        long monthStart = date.dayOfMonth().withMinimumValue().toDateTime().withTimeAtStartOfDay().getMillis() / 1000L;
+        long monthEnd = date.plusMonths(1).dayOfMonth().withMinimumValue().toDateTime().withTimeAtStartOfDay().getMillis() / 1000L;
+
+        Cursor cursor = db.rawQuery("SELECT * FROM `" + DB_EVENTS_TABLE + "` WHERE `start_date` >= '" + monthStart + "' AND `start_date` <= '" + monthEnd + "'", null);
+        return parseEvents(cursor);
+    }
+
+    public Event getEvent(Integer id) {
+        String[] columns = {KEY_ID, KEY_NAME, KEY_PLACE, KEY_PLACE_LATITUDE, KEY_PLACE_LONGITUDE, KEY_START_DATE, KEY_END_DATE};
         String where = KEY_ID + "=" + id;
-        Cursor cursor = db.query(DB_EVENTS_TABLE, columns, where, null, null, null, null);
+        Cursor cursor = db.query(DB_EVENTS_TABLE, null, where, null, null, null, null);
         Event event = null;
+
         if(cursor != null && cursor.moveToFirst()) {
-            
             String name = cursor.getString(NAME_COLUMN);
+            String place = cursor.getString(PLACE_COLUMN);
+            double placeLat = cursor.getDouble(PLACE_LATITUDE_COLUMN);
+            double placeLng = cursor.getDouble(PLACE_LONGITUDE_COLUMN);
             long startDate = cursor.getLong(START_DATE_COLUMN);
             long endDate = cursor.getLong(END_DATE_COLUMN);
-            String place = cursor.getString(PLACE_COLUMN);
-            event = new Event(id, name,place,null,null);
+
+            event = new Event(id, name, place, placeLat, placeLng, startDate, endDate);
         }
+
         return event;
+    }
+
+    private ArrayList<Event> parseEvents(Cursor cursor) {
+        ArrayList<Event> events = new ArrayList<>();
+
+        if(cursor != null) {
+            while(cursor.moveToNext()) {
+                int id = cursor.getInt(ID_COLUMN);
+                String name = cursor.getString(NAME_COLUMN);
+                String place = cursor.getString(PLACE_COLUMN);
+                double placeLat = cursor.getDouble(PLACE_LATITUDE_COLUMN);
+                double placeLng = cursor.getDouble(PLACE_LONGITUDE_COLUMN);
+                long startDate = cursor.getLong(START_DATE_COLUMN);
+                long endDate = cursor.getLong(END_DATE_COLUMN);
+
+                events.add(new Event(id, name, place, placeLat, placeLng, startDate, endDate));
+            }
+        }
+
+        return events;
     }
 }

@@ -45,7 +45,6 @@
         </receiver>
 
         <activity android:name=".CreateEventActivity" />
-        <activity android:name=".CalendarActivity"></activity>
 
         <activity
             android:name=".NotificationEvent"

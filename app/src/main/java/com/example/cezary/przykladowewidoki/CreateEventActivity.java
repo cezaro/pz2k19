@@ -45,21 +45,29 @@ public class CreateEventActivity extends AppCompatActivity {
     String eventPlace;
     int sYear, sMonth, sDay, sHour, sMinute, eYear, eMonth, eDay, eHour, eMinute;
 
+    double eventLatitude, eventLongitude;
+
     AutocompleteSupportFragment autocompleteFragment;
     EditText autocompleteFragmentInput;
 
+    private Manager dbManager;
+
+    Event event = new Event();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Dodaj wydarzenie");
 
-        Configuration config = getBaseContext().getResources().getConfiguration();
-        Locale locale = new Locale("pl");
+        String languageToLoad  = "pl";
+        Locale locale = new Locale(languageToLoad);
         Locale.setDefault(locale);
+        Configuration config = new Configuration();
         config.locale = locale;
         getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
 
+        dbManager = new Manager(this);
+        dbManager.open();
 
         setContentView(R.layout.activity_create_event);
 
@@ -75,7 +83,6 @@ public class CreateEventActivity extends AppCompatActivity {
         autocompleteFragmentInput.setTextSize(18.0f);
         autocompleteFragmentInput.setBackground(getResources().getDrawable(R.drawable.edit_text_background));
         autocompleteFragmentInput.setPadding(15, 15, 15, 15);
-
 
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG));
 
@@ -177,6 +184,12 @@ public class CreateEventActivity extends AppCompatActivity {
                     return;
                 }
 
+                event.name = mNameTXT.getText().toString();
+                event.startDate = new LocalDateTime(sYear, sMonth, sDay, sHour, sMinute);
+                event.endDate = new LocalDateTime(sYear, sMonth, sDay, eHour, eMinute);
+
+                dbManager.insertEvent(event);
+
                 Intent data = getIntent();
                 data.putExtra("name", mNameTXT.getText().toString());
                 data.putExtra("place", eventPlace);
@@ -196,18 +209,25 @@ public class CreateEventActivity extends AppCompatActivity {
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
-                eventPlace = place.getName();
+                event.place = place.getName();
+                event.placeLatitude = place.getLatLng().latitude;
+                event.placeLongitude = place.getLatLng().longitude;
 
-                Log.i("MAPSAPI", "Place: " + place.getName() + ", " + place.getId() + ", " + place.getLatLng());
+                Log.d("LOGI", "Place: " + place.getName() + ", " + place.getId() + ", " + place.getLatLng());
             }
 
             @Override
             public void onError(Status status) {
-                // TODO: Handle the error.
-                Log.i("MAPSAPI", "An error occurred: " + status);
+                Log.d("LOGI", "An error occurred: " + status);
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        dbManager.close();
     }
 
     private String loadKey() {
