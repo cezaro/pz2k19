@@ -13,17 +13,20 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Event implements Serializable {
+    public Integer id;
     public String name, place;
     public LocalDateTime startDate;
     public LocalDateTime endDate;
 
-    public Event(String name, String place, LocalDateTime startDate, LocalDateTime endDate) {
+    public Event(Integer id,String name, String place, LocalDateTime startDate, LocalDateTime endDate) {
+        this.id =id;
         this.name = name;
         this.place = place;
         this.startDate = startDate;
         this.endDate = endDate;
     }
-
+    public Integer getId() {return id;}
+    public void setId(Integer id) {this.id = id;}
     public String getName() {
         return name;
     }
