@@ -21,6 +21,8 @@ public class NotificationEventReceiver extends WakefulBroadcastReceiver {
 
     //LocalDateTime wydarz = LocalDateTime.now().plusMinutes(11);
 
+
+
     public static void setupAlarm(Context context) {
 
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

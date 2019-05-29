@@ -27,19 +27,32 @@
 
     <TextView
         android:id="@+id/name"
-        android:textSize="26sp"
-        android:textColor="#333"
-        android:gravity="center_vertical|center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:layout_gravity="center|top"
+        android:textColor="#333"
+        android:textSize="30sp" />
 
-    <android.support.design.widget.FloatingActionButton
+    <Button
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_delete" />
+        android:textColor="#333"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="396dp"
+        android:text="Wylacz powiadomienia" />
+
+    <Button
+    android:id="@+id/to_event"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|start"
+    android:textColor="#333"
+    tools:layout_editor_absoluteX="20dp"
+    tools:layout_editor_absoluteY="396dp"
+    android:text="Do wydarzenia" />
+
 
 </android.support.design.widget.CoordinatorLayout>

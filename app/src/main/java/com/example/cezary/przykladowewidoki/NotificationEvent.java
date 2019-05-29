@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.joda.time.LocalDateTime;
+
 public class NotificationEvent extends AppCompatActivity {
 
     @Override
@@ -18,14 +20,28 @@ public class NotificationEvent extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.name);
         textView.setText(NotificationIntentService.name);
         TextView textView1 = (TextView) findViewById(R.id.time);
-        textView1.setText("    Musisz wyjsc za " + NotificationIntentService.minutes +"'");
-        FloatingActionButton closeButton = findViewById(R.id.fab);
+        textView1.setText("Musisz wyjsc za " + NotificationIntentService.minutes +"'" );
+        Button closeButton = findViewById(R.id.fab);
         closeButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
                 NotificationEventReceiver.cancelAlarm(getApplication());
+                finish();
+            }
+        });
+
+        Button eventButton = findViewById(R.id.to_event);
+        eventButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                for (int i = MainActivity.events.size() - 1; i > 0; i-- )
+                    if (MainActivity.events.get(i).getStartDate().isAfter(LocalDateTime.now())) {
+                        EventView.selectedEvent = MainActivity.events.get(i);
+                    }
+                MainActivity.showEditEventView(v);
                 finish();
             }
         });

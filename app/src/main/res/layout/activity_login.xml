@@ -40,7 +40,6 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@color/colorPrimary"
-            android:drawableLeft="@drawable/ic_btn_google_light_normal_ios"
             android:gravity="center_vertical|center_horizontal"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
