@@ -1,6 +1,7 @@
 package com.example.cezary.przykladowewidoki;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -57,7 +58,7 @@ import java.util.Properties;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     static ArrayList<Event> events = new ArrayList<Event>();
-
+    public static Context mContext;
     LinearLayout eventsListView;
 
     public LocalDateTime actualDate;
@@ -71,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         JodaTimeAndroid.init(this);
+
 
         String languageToLoad  = "pl";
         Locale locale = new Locale(languageToLoad);
@@ -204,6 +207,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showCreateEventView(View view) {
         Intent intent = new Intent(this, CreateEventActivity.class);
         startActivityForResult(intent, 12);
+    }
+
+    public static void showEditEventView(View view){
+        Intent intent = new Intent(mContext, CreateEventActivity.class);
+        mContext.startActivity(intent);
+        
     }
 
     @Override
