@@ -3,6 +3,7 @@ package com.example.cezary.przykladowewidoki;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -35,7 +36,7 @@ import java.util.Properties;
 
 public class CreateEventActivity extends AppCompatActivity {
     EditText mNameTXT, mPlaceTXT, mStartDateTXT, mStartTimeTXT, mEndTimeTXT;
-    Button addBtn;
+    Button addBtn, delBtn;
     DatePickerDialog datePickerDialog;
 
     final Calendar calendar = Calendar.getInstance();
@@ -91,6 +92,7 @@ public class CreateEventActivity extends AppCompatActivity {
         mStartTimeTXT = (EditText)findViewById(R.id.startTimeTXT);
         mEndTimeTXT = (EditText)findViewById(R.id.endTimeTXT);
         addBtn = (Button)findViewById(R.id.addButton);
+        delBtn = (Button)findViewById(R.id.delButton);
         mStartDateTXT.setKeyListener(null);
         mStartTimeTXT.setKeyListener(null);
         mEndTimeTXT.setKeyListener(null);
@@ -120,6 +122,17 @@ public class CreateEventActivity extends AppCompatActivity {
         sDay = now.getDayOfMonth();
         sMonth = now.getMonthOfYear();
         sYear = now.getYear();
+
+        if (EventView.selectedEvent != null){
+            mNameTXT.setText(EventView.selectedEvent.getName());
+            autocompleteFragmentInput.setText(EventView.selectedEvent.getPlace());
+            fmt = DateTimeFormat.forPattern("HH:mm");
+            mStartTimeTXT.setText(EventView.selectedEvent.startDate.toString(fmt));
+            mEndTimeTXT.setText(EventView.selectedEvent.endDate.toString(fmt));
+            fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+            mStartDateTXT.setText(EventView.selectedEvent.startDate.toString(fmt));
+            delBtn.setVisibility(View.VISIBLE);
+        }
 
         mStartTimeTXT.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,21 +201,50 @@ public class CreateEventActivity extends AppCompatActivity {
                 event.startDate = new LocalDateTime(sYear, sMonth, sDay, sHour, sMinute);
                 event.endDate = new LocalDateTime(sYear, sMonth, sDay, eHour, eMinute);
 
+
+                if (EventView.selectedEvent != null) {
+                    MainActivity.events.remove(EventView.selectedEvent);
+                    dbManager.deleteEvent(EventView.selectedEvent.getId());
+                }
                 dbManager.insertEvent(event);
+                MainActivity.events.add(event);
 
                 Intent data = getIntent();
-                data.putExtra("name", mNameTXT.getText().toString());
-                data.putExtra("place", eventPlace);
-                data.putExtra("startyear", sYear);
-                data.putExtra("startmonth", sMonth);
-                data.putExtra("startday", sDay);
-                data.putExtra("starthour", sHour);
-                data.putExtra("startminute", sMinute);
-                data.putExtra("endhour", eHour);
-                data.putExtra("endminute", eMinute);
+//                data.putExtra("name", mNameTXT.getText().toString());
+//                data.putExtra("place", eventPlace);
+//                data.putExtra("startyear", sYear);
+//                data.putExtra("startmonth", sMonth);
+//                data.putExtra("startday", sDay);
+//                data.putExtra("starthour", sHour);
+//                data.putExtra("startminute", sMinute);
+//                data.putExtra("endhour", eHour);
+//                data.putExtra("endminute", eMinute);
 
                 setResult(RESULT_OK, data);
+                MainActivity.refreshEvents();
                 finish();
+            }
+        });
+
+        delBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(CreateEventActivity.this);
+                builder.setMessage("Czy chcesz usunąć to wydarzenie?")
+                        .setPositiveButton("TAK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                MainActivity.events.remove(EventView.selectedEvent);
+                                dbManager.deleteEvent(EventView.selectedEvent.getId());
+                                MainActivity.refreshEvents();
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("NIE", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {}
+                        }).create();
+                builder.show();
             }
         });
 

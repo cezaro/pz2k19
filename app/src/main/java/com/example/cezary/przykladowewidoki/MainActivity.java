@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     static ArrayList<Event> events = new ArrayList<Event>();
     public static Context mContext;
-    LinearLayout eventsListView;
+    static LinearLayout eventsListView;
 
     public LocalDateTime actualDate;
     public LocalDateTime tempDate;
@@ -205,9 +205,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void showCreateEventView(View view) {
+        EventView.selectedEvent = null;
         Intent intent = new Intent(this, CreateEventActivity.class);
         startActivityForResult(intent, 12);
     }
+
 
     public static void showEditEventView(View view){
         Intent intent = new Intent(mContext, CreateEventActivity.class);
@@ -219,32 +221,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode == 12) {
             if (resultCode == RESULT_OK) {
-                LocalDateTime start = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
-                        data.getIntExtra("starthour", 0), data.getIntExtra("startminute", 0));
-
-                LocalDateTime end = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
-                        data.getIntExtra("endhour", 0), data.getIntExtra("endminute", 0));
+//                LocalDateTime start = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
+//                        data.getIntExtra("starthour", 0), data.getIntExtra("startminute", 0));
+//
+//                LocalDateTime end = new LocalDateTime(data.getIntExtra("startyear", 2000), data.getIntExtra("startmonth", 1), data.getIntExtra("startday", 1),
+//                        data.getIntExtra("endhour", 0), data.getIntExtra("endminute", 0));
 
 //                Event event = new Event(null, data.getStringExtra("name"), data.getStringExtra("place"), start, end);
 //                createEvent(event);
+//                refreshEvents();
             }
         }
     }
 
-    public void createEvent(Event event) {
-        events.add(event);
+//    public void createEvent(Event event) {
+//        events.add(event);
+//        refreshEvents();
+//    }
 
-        refreshEvents();
-    }
-
-    private void refreshEvents() {
+    public static void refreshEvents() {
         sortEvents();
         eventsListView.removeAllViews();
 
         int count = 0;
         for(Event e : events)
         {
-            EventView v = new EventView(getBaseContext(), null, e);
+            EventView v = new EventView(mContext, null, e);
             eventsListView.addView(v);
             count++;
             /*if(e.startDate.compareTo(LocalDateTime.now()) > 0) {
@@ -256,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(count == 0)
         {
-            TextView noEventsText = new TextView(getBaseContext());
+            TextView noEventsText = new TextView(mContext);
             noEventsText.setText("Na dzisiaj nie ma zaplanowanych wydarzeń");
             noEventsText.setGravity(Gravity.CENTER);
             noEventsText.setPadding(0, 15, 0, 15);
@@ -405,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    private void sortEvents() {
+    private static void sortEvents() {
         Collections.sort(events, new Comparator<Event>() {
             public int compare(Event e1, Event e2) {
                 return e1.startDate.compareTo(e2.startDate);

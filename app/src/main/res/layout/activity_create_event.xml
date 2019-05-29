@@ -120,6 +120,14 @@
             android:layout_weight="1"
             android:text="Dodaj" />
 
+        <Button
+            android:id="@+id/delButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Usuń"
+            android:visibility="invisible" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

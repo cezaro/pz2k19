@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 public class EventView extends LinearLayout {
     Event event;
+    static Event selectedEvent;
 
     TextView nameText,
             placeText,
@@ -38,7 +39,9 @@ public class EventView extends LinearLayout {
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(getContext(), "asd", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "asd", Toast.LENGTH_SHORT).show();
+                selectedEvent = event;
+                MainActivity.showEditEventView(v);
                 return false;
             }
         });
@@ -50,6 +53,10 @@ public class EventView extends LinearLayout {
         super.onTouchEvent(event);
 
         return true;
+    }
+
+    public void getSelectedEvent(){
+
     }
 
     private void initComponents() {
