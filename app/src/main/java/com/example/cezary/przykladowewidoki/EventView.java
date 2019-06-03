@@ -2,6 +2,7 @@ package com.example.cezary.przykladowewidoki;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -17,7 +18,8 @@ public class EventView extends LinearLayout {
 
     TextView nameText,
             placeText,
-            dateText;
+            dateText,
+            timeleftText;
 
     public EventView(Context context, AttributeSet attrs, Event event) {
         super(context, attrs);
@@ -35,6 +37,8 @@ public class EventView extends LinearLayout {
         nameText = findViewById(R.id.eventName);
         placeText = findViewById(R.id.eventPlace);
         dateText = findViewById(R.id.eventDate);
+        timeleftText = findViewById(R.id.eventTimeleft);
+        timeleftText.setTextColor(Color.rgb(255,50,50));
 
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override

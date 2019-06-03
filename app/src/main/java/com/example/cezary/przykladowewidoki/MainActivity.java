@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            refreshEvents();
+            Toast.makeText(mContext, "dfsfsdf", Toast.LENGTH_SHORT).show();
             return true;
         }
 
@@ -247,6 +249,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for(Event e : events)
         {
             EventView v = new EventView(mContext, null, e);
+            if (count == 0){
+                NotificationEventReceiver.setupAlarm(MainActivity.mContext);
+                v.timeleftText.setText("Wyjdź za: " + NotificationIntentService.minutes + " minut");
+                v.timeleftText.setVisibility(View.VISIBLE);
+            }
             eventsListView.addView(v);
             count++;
             /*if(e.startDate.compareTo(LocalDateTime.now()) > 0) {
