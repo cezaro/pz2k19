@@ -125,7 +125,13 @@ public class CreateEventActivity extends AppCompatActivity {
 
         if (EventView.selectedEvent != null){
             mNameTXT.setText(EventView.selectedEvent.getName());
-            autocompleteFragmentInput.setText(EventView.selectedEvent.getPlace());
+
+            autocompleteFragment.setText(EventView.selectedEvent.getPlace());
+
+            event.place = EventView.selectedEvent.getPlace();
+            event.placeLongitude = EventView.selectedEvent.placeLongitude;
+            event.placeLatitude = EventView.selectedEvent.placeLatitude;
+
             fmt = DateTimeFormat.forPattern("HH:mm");
             mStartTimeTXT.setText(EventView.selectedEvent.startDate.toString(fmt));
             mEndTimeTXT.setText(EventView.selectedEvent.endDate.toString(fmt));
@@ -206,8 +212,13 @@ public class CreateEventActivity extends AppCompatActivity {
                     MainActivity.events.remove(EventView.selectedEvent);
                     dbManager.deleteEvent(EventView.selectedEvent.getId());
                 }
+
+                if(MainActivity.actualDate.getDayOfYear() == event.startDate.getDayOfYear() && MainActivity.actualDate.getYear() == event.startDate.getYear())
+                {
+                    MainActivity.events.add(event);
+                }
+
                 dbManager.insertEvent(event);
-                MainActivity.events.add(event);
 
                 Intent data = getIntent();
 //                data.putExtra("name", mNameTXT.getText().toString());

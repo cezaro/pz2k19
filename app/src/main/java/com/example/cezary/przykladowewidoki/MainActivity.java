@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static Context mContext;
     static LinearLayout eventsListView;
 
-    public LocalDateTime actualDate;
+    static public LocalDateTime actualDate;
     public LocalDateTime tempDate;
 
     private CompactCalendarView compactCalendarView;
@@ -363,6 +363,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 actualDate = tempDate;
+                events = dbManager.getDayEvents(actualDate);
+                refreshEvents();
                 setToolbarText();
                 myDialog.hide();
             }
