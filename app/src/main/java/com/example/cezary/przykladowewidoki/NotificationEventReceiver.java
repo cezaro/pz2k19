@@ -19,10 +19,6 @@ public class NotificationEventReceiver extends WakefulBroadcastReceiver {
 
     private static final int NOTIFICATIONS_INTERVAL_IN_HOURS = 1;
 
-    //LocalDateTime wydarz = LocalDateTime.now().plusMinutes(11);
-
-
-
     public static void setupAlarm(Context context) {
 
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

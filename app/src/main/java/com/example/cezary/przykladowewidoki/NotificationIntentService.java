@@ -6,14 +6,19 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +26,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+
+import static java.lang.Integer.parseInt;
 
 
 public class NotificationIntentService extends IntentService{
@@ -31,16 +41,20 @@ public class NotificationIntentService extends IntentService{
     private static final String ACTION_DELETE = "ACTION_DELETE";
 
 
-    static LocalDateTime event = LocalDateTime.now().plusDays(1);
+    static LocalDateTime eventStart = LocalDateTime.now().plusDays(1);
     public static String name = "Brak";
     Period differce;
     static int  minutes;
+    static int durationMinutes;
     static double eventLatitude, eventLongitude, currentLatitude, currentLongitude;
-
+    ArrayList<Event> events = new ArrayList<Event>();
+    static String url;
+    static Event event;
 
     public NotificationIntentService() {
 
         super(NotificationIntentService.class.getSimpleName());
+        events = MainActivity.events;
     }
 
     public static Intent createIntentStartNotificationService(Context context) {
@@ -94,6 +108,8 @@ public class NotificationIntentService extends IntentService{
         return data;
     }
 
+
+
     private String loadKey() {
         AssetManager assetManager = getResources().getAssets();
 
@@ -119,32 +135,56 @@ public class NotificationIntentService extends IntentService{
            currentLongitude = gps.getLongitude();
         }
         Log.d(getClass().getSimpleName(), "onHandleIntent, started handling a notification event");
-        for (int i = MainActivity.events.size() - 1; i >= 0; i-- )
-            if (MainActivity.events.get(i).getStartDate().isAfter(LocalDateTime.now())) {
-                name = MainActivity.events.get(i).getName();
-                event = MainActivity.events.get(i).getStartDate();
-                differce = new Period(LocalDateTime.now(), event, PeriodType.minutes());
+        for (int i = events.size() - 1; i >= 0; i-- )
+            if (events.get(i).getStartDate().isAfter(LocalDateTime.now()) && events.get(i).getWantNotification()) {
+                name = events.get(i).getName();
+                eventStart = events.get(i).getStartDate();
+                differce = new Period(LocalDateTime.now(), eventStart, PeriodType.minutes());
                 minutes =  differce.getMinutes();
-                eventLatitude = MainActivity.events.get(i).placeLatitude;
-                eventLongitude = MainActivity.events.get(i).placeLongitude;
+                eventLatitude = events.get(i).placeLatitude;
+                eventLongitude = events.get(i).placeLongitude;
+                event = events.get(i);
             }
-        String str_origin = "origin=" + currentLatitude + "," + currentLongitude;
+        String str_origin = "origins=" + currentLatitude + "," + currentLongitude;
         // Destination of route
-        String str_dest = "destination=" + eventLatitude + "," + eventLongitude;
+        String str_dest = "destinations=" + eventLatitude + "," + eventLongitude;
         // Sensor enabled
-        String sensor = "sensor=false";
+        String units = "units=metric";
         // Travelling mode enable
-        String mode = "mode = driving";
+        String mode = "mode=driving";
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&"+ mode;
+        String parameters =units + "&" + str_origin + "&" + str_dest;
         // Output format
         String output = "json";
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + loadKey();
+
+        if(events.size()>0)
+        url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + "?" + parameters + "&key=" + loadKey();
+        String data = "";
+        try
+        {
+            // Fetching the data from web service
+            data = NotificationIntentService.this.downloadUrl(url);
+        } catch (Exception e)
+        {
+            Log.d("Background Task", e.toString());
+        }
+
+        JSONObject jObject;
+        try
+        {
+            jObject = new JSONObject(data);
+            DirectionsJSONParser parser = new DirectionsJSONParser();
+            NotificationIntentService.this.durationMinutes = parser.parseInt(jObject);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         try {
             String action = intent.getAction();
-            if (ACTION_START.equals(action)&&event.isBefore(LocalDateTime.now().plusMinutes(10))) {
-
-                processStartNotification(name, minutes);
+            if (ACTION_START.equals(action)&&eventStart.isBefore(LocalDateTime.now().plusMinutes(10 + durationMinutes))) {
+                System.out.println(url);
+                processStartNotification(name, minutes, durationMinutes, url);
             }
             if (ACTION_DELETE.equals(action)) {
                 processDeleteNotification(intent);
@@ -158,16 +198,23 @@ public class NotificationIntentService extends IntentService{
         // Log something?
     }
 
-    private void processStartNotification(String name, int minutes) {
+    private void processStartNotification(String name, int minutes, int duration, String url) {
         // Do something. For example, fetch fresh data from backend to create a rich notification?
 
 
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setContentTitle("Przypominienie o wyjsciu! " + name)
-                    .setAutoCancel(true)
-                    .setColor(getResources().getColor(R.color.colorPrimary))
-                    .setContentText("Musisz wyjsc za " + minutes)
-                    .setSmallIcon(R.drawable.notification_icon);
+            if(minutes - duration >= 0)
+                builder.setContentTitle("Przypominienie o wyjsciu! " + name)
+                        .setAutoCancel(true)
+                        .setColor(getResources().getColor(R.color.colorPrimary))
+                        .setContentText("Musisz wyjsc za " + (minutes - duration) + "'")
+                        .setSmallIcon(R.drawable.notification_icon);
+            else
+                builder.setContentTitle("Przypominienie o wyjsciu! " + name)
+                        .setAutoCancel(true)
+                        .setColor(getResources().getColor(R.color.colorPrimary))
+                        .setContentText("Jestes spozniony o  " + (duration - minutes) + "'")
+                        .setSmallIcon(R.drawable.notification_icon);
 
             Intent mainIntent = new Intent(this, NotificationEvent.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -180,5 +227,5 @@ public class NotificationIntentService extends IntentService{
             final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.notify(NOTIFICATION_ID, builder.build());
         }
-
 }
+

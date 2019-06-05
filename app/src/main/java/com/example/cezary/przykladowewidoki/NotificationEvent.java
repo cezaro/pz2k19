@@ -1,6 +1,7 @@
 package com.example.cezary.przykladowewidoki;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -20,14 +21,23 @@ public class NotificationEvent extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.name);
         textView.setText(NotificationIntentService.name);
         TextView textView1 = (TextView) findViewById(R.id.time);
-        textView1.setText("Musisz wyjsc za " + NotificationIntentService.minutes +"'" );
+        if(NotificationIntentService.minutes - NotificationIntentService.durationMinutes >= 0) {
+            textView1.setText("Musisz wyjsc za " +
+                    (NotificationIntentService.minutes - NotificationIntentService.durationMinutes) + "'");
+        }
+        else{
+            textView1.setText("Jestes spozniony o  " +
+                    (NotificationIntentService.durationMinutes - NotificationIntentService.minutes) + "'");
+            textView1.setTextColor(Color.RED);
+        }
         Button closeButton = findViewById(R.id.fab);
         closeButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                NotificationEventReceiver.cancelAlarm(getApplication());
+                //NotificationEventReceiver.cancelAlarm(getApplication());
+                NotificationIntentService.event.setWantNotification(false);
                 finish();
             }
         });
@@ -37,11 +47,6 @@ public class NotificationEvent extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                for (int i = MainActivity.events.size() - 1; i > 0; i-- )
-                    if (MainActivity.events.get(i).getStartDate().isAfter(LocalDateTime.now())) {
-                        EventView.selectedEvent = MainActivity.events.get(i);
-                    }
-                MainActivity.showEditEventView(v);
                 finish();
             }
         });

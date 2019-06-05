@@ -206,6 +206,7 @@ public class CreateEventActivity extends AppCompatActivity {
                 event.name = mNameTXT.getText().toString();
                 event.startDate = new LocalDateTime(sYear, sMonth, sDay, sHour, sMinute);
                 event.endDate = new LocalDateTime(sYear, sMonth, sDay, eHour, eMinute);
+                event.wantNotification = true;
 
 
                 if (EventView.selectedEvent != null) {
@@ -283,7 +284,7 @@ public class CreateEventActivity extends AppCompatActivity {
         dbManager.close();
     }
 
-    private String loadKey() {
+     String loadKey() {
         AssetManager assetManager = getResources().getAssets();
 
         try {

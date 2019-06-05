@@ -179,7 +179,7 @@ public class Manager {
             long startDate = cursor.getLong(START_DATE_COLUMN);
             long endDate = cursor.getLong(END_DATE_COLUMN);
 
-            event = new Event(id, name, place, placeLat, placeLng, startDate, endDate);
+            event = new Event(id, name, place, placeLat, placeLng, startDate, endDate, true);
         }
 
         return event;
@@ -198,7 +198,7 @@ public class Manager {
                 long startDate = cursor.getLong(START_DATE_COLUMN);
                 long endDate = cursor.getLong(END_DATE_COLUMN);
 
-                events.add(new Event(id, name, place, placeLat, placeLng, startDate, endDate));
+                events.add(new Event(id, name, place, placeLat, placeLng, startDate, endDate, true));
             }
         }
 

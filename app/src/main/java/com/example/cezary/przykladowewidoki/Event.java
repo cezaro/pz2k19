@@ -21,6 +21,7 @@ public class Event implements Serializable {
     public double placeLongitude;
     public LocalDateTime startDate;
     public LocalDateTime endDate;
+    public boolean wantNotification;
 
     public Event() {}
 
@@ -34,7 +35,7 @@ public class Event implements Serializable {
         this.endDate = endDate;
     }
 
-    public Event(Integer id, String name, String place, double placeLatitude, double placeLongitude, long startDate, long endDate) {
+    public Event(Integer id, String name, String place, double placeLatitude, double placeLongitude, long startDate, long endDate, boolean wantNotification) {
         this.id = id;
         this.name = name;
         this.place = place;
@@ -42,6 +43,7 @@ public class Event implements Serializable {
         this.placeLongitude = placeLongitude;
         this.startDate = new LocalDateTime(startDate * 1000L);
         this.endDate = new LocalDateTime(endDate * 1000L);
+        this.wantNotification = wantNotification;
     }
 
     public Integer getId() {return id;}
@@ -83,6 +85,12 @@ public class Event implements Serializable {
 
         return "od " + startDate.toString(fmt) + " do " + endDate.toString(fmt);
     }
+
+    public boolean getWantNotification(){
+        return wantNotification;
+    }
+
+    public void setWantNotification(boolean wantNotification){this.wantNotification = wantNotification;}
 
     public com.github.sundeepk.compactcalendarview.domain.Event getCalendarEventObject() {
 
