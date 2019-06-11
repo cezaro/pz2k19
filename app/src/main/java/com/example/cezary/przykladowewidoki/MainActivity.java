@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 end = LocalDateTime.now().plusHours(1);
 
         events = dbManager.getDayEvents(LocalDateTime.now());
+        NotificationIntentService.events = events;
         Log.d("LOGI", events.size() + " ");
 
 //        long test = dbManager.insertEvent(new Event(null, "Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));

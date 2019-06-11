@@ -6,6 +6,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
@@ -29,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
@@ -47,14 +49,15 @@ public class NotificationIntentService extends IntentService{
     static int  minutes;
     static int durationMinutes;
     static double eventLatitude, eventLongitude, currentLatitude, currentLongitude;
-    ArrayList<Event> events = new ArrayList<Event>();
+    static ArrayList<Event> events = new ArrayList<Event>();
     static String url;
     static Event event;
+    static private Manager dbManager;
 
     public NotificationIntentService() {
 
         super(NotificationIntentService.class.getSimpleName());
-        events = MainActivity.events;
+        //events = MainActivity.events;
     }
 
     public static Intent createIntentStartNotificationService(Context context) {
@@ -135,6 +138,12 @@ public class NotificationIntentService extends IntentService{
            currentLongitude = gps.getLongitude();
         }
         Log.d(getClass().getSimpleName(), "onHandleIntent, started handling a notification event");
+        dbManager = new Manager(this);
+        dbManager.open();
+        LocalDateTime start = LocalDateTime.now(),
+                end = LocalDateTime.now().plusHours(1);
+
+        events = dbManager.getDayEvents(LocalDateTime.now());
         for (int i = events.size() - 1; i >= 0; i-- )
             if (events.get(i).getStartDate().isAfter(LocalDateTime.now()) && events.get(i).getWantNotification()) {
                 name = events.get(i).getName();
