@@ -22,6 +22,7 @@ public class Event implements Serializable {
     public LocalDateTime startDate;
     public LocalDateTime endDate;
     public boolean wantNotification;
+    private int travelTime;
 
     public Event() {}
 
@@ -95,5 +96,13 @@ public class Event implements Serializable {
     public com.github.sundeepk.compactcalendarview.domain.Event getCalendarEventObject() {
 
         return new com.github.sundeepk.compactcalendarview.domain.Event(Color.rgb(61, 90, 254), this.startDate.toDateTime().getMillis());
+    }
+
+    public int getTravelTime() {
+        return travelTime;
+    }
+
+    public void setTravelTime(int travelTime) {
+        this.travelTime = travelTime;
     }
 }

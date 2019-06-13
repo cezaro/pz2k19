@@ -1,14 +1,17 @@
 package com.example.cezary.przykladowewidoki;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -41,6 +44,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +72,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Toolbar toolbar;
 
     private Manager dbManager;
+    private static String apiKey = null;
+    private static int minutes;
+    private static Event currentEvent;
+    private static GPSTracker gps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mContext = this;
         JodaTimeAndroid.init(this);
 
+        gps = new GPSTracker(mContext);
 
         String languageToLoad  = "pl";
         Locale locale = new Locale(languageToLoad);
@@ -117,7 +126,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 end = LocalDateTime.now().plusHours(1);
 
         events = dbManager.getDayEvents(LocalDateTime.now());
+
         Log.d("LOGI", events.size() + " ");
+
+
+
+        AssetManager am = getResources().getAssets();
+        try{
+            InputStream inputStream = am.open("keystore.properties");
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            apiKey = properties.getProperty("googleMapsApiKey");
+        } catch (IOException e) {
+            System.err.println("Nie znaleziono pliku");
+            e.printStackTrace();
+        }
 
 //        long test = dbManager.insertEvent(new Event(null, "Spotkanie w Pasażu", "plac Grunwaldzki 22, 50-363 Wrocław", start, end));
         //createEvent();
@@ -173,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            refreshEvents();
             return true;
         }
 
@@ -243,29 +268,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sortEvents();
         eventsListView.removeAllViews();
 
-        int count = 0;
-        for(Event e : events)
-        {
-            EventView v = new EventView(mContext, null, e);
-            eventsListView.addView(v);
-            count++;
-            /*if(e.startDate.compareTo(LocalDateTime.now()) > 0) {
-                EventView v = new EventView(getBaseContext(), null, e);
-                eventsListView.addView(v);
-                count++;
-            }*/
-        }
+        gps = new GPSTracker(mContext);
+        new TimePicker().execute();
 
-        if(count == 0)
-        {
-            TextView noEventsText = new TextView(mContext);
-            noEventsText.setText("Na dzisiaj nie ma zaplanowanych wydarzeń");
-            noEventsText.setGravity(Gravity.CENTER);
-            noEventsText.setPadding(0, 15, 0, 15);
 
-            eventsListView.addView(noEventsText);
-        }
+
     }
+
+
 
     private void setToolbarText() {
         LocalDateTime date = actualDate;
@@ -417,6 +427,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    public static void drawList(){
+        int count = 0;
+        for(Event e : events)
+        {
+
+            EventView v = new EventView(mContext, null, e);
+            v.travelTimeText.setText("Czas podróży: " + e.getTravelTime() + " min");
+
+            eventsListView.addView(v);
+            count++;
+        }
+
+        if(count == 0)
+        {
+            TextView noEventsText = new TextView(mContext);
+            noEventsText.setText("Na dzisiaj nie ma zaplanowanych wydarzeń");
+            noEventsText.setGravity(Gravity.CENTER);
+            noEventsText.setPadding(0, 15, 0, 15);
+
+            eventsListView.addView(noEventsText);
+        }
+    }
+
     /*private String loadProperty(String propertyName) {
         AssetManager assetManager = getResources().getAssets();
 
@@ -433,4 +466,78 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return null;
     }*/
+    private static class TimePicker extends AsyncTask<String, Void, Void>{
+
+        private ProgressDialog pDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(mContext);
+            pDialog.setMessage("Pobieranie czasu dla wydarzeń...");
+            pDialog.setCancelable(true);
+            pDialog.show();
+
+
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            int count = 0;
+            String url = null;
+            for (Event e : MainActivity.events) {
+                Log.i("zzzz", "Pobieram czas dla " + e.getName());
+                if (gps.canGetLocation){
+                    if (count == 0){
+                        url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=" + gps.getLatitude() + "," + gps.getLongitude() + "&destinations="
+                                + e.placeLatitude + "," + e.placeLongitude + "&key=" + apiKey;
+                    }
+                    else url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=" + events.get(count - 1).placeLatitude + "," + events.get(count - 1).placeLongitude
+                            + "&destinations=" + e.placeLatitude + "," + e.placeLongitude + "&key=" + apiKey;
+                    Log.i("zzzz", url);
+                    String data = null;
+                    try {
+                        data = HttpHandler.makeServiceCall(url);
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }
+                    JSONObject jObject;
+                    if (data != null){
+                        try
+                        {
+                            jObject = new JSONObject(data);
+                            DirectionsJSONParser parser = new DirectionsJSONParser();
+                            minutes = parser.parseInt(jObject);
+                            Log.i("zzzz", "Pobrano czas: " + minutes);
+                            e.setTravelTime(minutes);
+                            count++;
+                            Log.i("zzzz", "doInBackground: ");
+
+
+
+                        } catch (Exception ex)
+                        {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+
+            return null;
+        }
+
+//        @Override
+        protected void onPostExecute(Void aVoid) {
+//            super.onPostExecute(aVoid);
+            Log.i("zzzz", "Kończę pobieranie");
+            MainActivity.drawList();
+
+            pDialog.dismiss();
+//            MainActivity.refreshEvents();
+        }
+    }
+
+
 }
+

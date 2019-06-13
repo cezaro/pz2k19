@@ -17,7 +17,8 @@ public class EventView extends LinearLayout {
 
     TextView nameText,
             placeText,
-            dateText;
+            dateText,
+            travelTimeText;
 
     public EventView(Context context, AttributeSet attrs, Event event) {
         super(context, attrs);
@@ -35,6 +36,7 @@ public class EventView extends LinearLayout {
         nameText = findViewById(R.id.eventName);
         placeText = findViewById(R.id.eventPlace);
         dateText = findViewById(R.id.eventDate);
+        travelTimeText = findViewById(R.id.travelTime);
 
         this.setOnLongClickListener(new OnLongClickListener() {
             @Override
