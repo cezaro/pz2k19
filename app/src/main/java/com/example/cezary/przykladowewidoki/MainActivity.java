@@ -266,16 +266,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static void refreshEvents() {
         sortEvents();
-        eventsListView.removeAllViews();
+        //eventsListView.removeAllViews();
 
         gps = new GPSTracker(mContext);
         new TimePicker().execute();
-
-
-
     }
-
-
 
     private void setToolbarText() {
         LocalDateTime date = actualDate;
@@ -431,6 +426,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int count = 0;
         for(Event e : events)
         {
+            TravelTimeView travelTimeView = new TravelTimeView(mContext, null, e.getTravelTime());
+            eventsListView.addView(travelTimeView);
 
             EventView v = new EventView(mContext, null, e);
             v.travelTimeText.setText("Czas podróży: " + e.getTravelTime() + " min");
@@ -477,8 +474,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             pDialog.setMessage("Pobieranie czasu dla wydarzeń...");
             pDialog.setCancelable(true);
             pDialog.show();
-
-
         }
 
         @Override
@@ -530,6 +525,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        @Override
         protected void onPostExecute(Void aVoid) {
 //            super.onPostExecute(aVoid);
+            eventsListView.removeAllViews();
+
             Log.i("zzzz", "Kończę pobieranie");
             MainActivity.drawList();
 
