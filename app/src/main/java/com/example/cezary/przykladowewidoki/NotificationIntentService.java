@@ -1,16 +1,13 @@
 package com.example.cezary.przykladowewidoki;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.NotificationManager;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.media.RingtoneManager;
-import android.net.Uri;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
@@ -33,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
@@ -51,14 +49,15 @@ public class NotificationIntentService extends IntentService{
     static int  minutes;
     static int durationMinutes;
     static double eventLatitude, eventLongitude, currentLatitude, currentLongitude;
-    ArrayList<Event> events = new ArrayList<Event>();
+    static ArrayList<Event> events = new ArrayList<Event>();
     static String url;
     static Event event;
+    static private Manager dbManager;
 
     public NotificationIntentService() {
 
         super(NotificationIntentService.class.getSimpleName());
-        events = MainActivity.events;
+        //events = MainActivity.events;
     }
 
     public static Intent createIntentStartNotificationService(Context context) {
@@ -139,6 +138,12 @@ public class NotificationIntentService extends IntentService{
            currentLongitude = gps.getLongitude();
         }
         Log.d(getClass().getSimpleName(), "onHandleIntent, started handling a notification event");
+        dbManager = new Manager(this);
+        dbManager.open();
+        LocalDateTime start = LocalDateTime.now(),
+                end = LocalDateTime.now().plusHours(1);
+
+        events = dbManager.getDayEvents(LocalDateTime.now());
         for (int i = events.size() - 1; i >= 0; i-- )
             if (events.get(i).getStartDate().isAfter(LocalDateTime.now()) && events.get(i).getWantNotification()) {
                 name = events.get(i).getName();
@@ -161,11 +166,8 @@ public class NotificationIntentService extends IntentService{
         // Output format
         String output = "json";
 
-        if(events.size()>0){
-            url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + "?" + parameters + "&key=" + loadKey();
-            Log.i("............",url);
-        }
-
+        if(events.size()>0)
+        url = "https://maps.googleapis.com/maps/api/distancematrix/" + output + "?" + parameters + "&key=" + loadKey();
         String data = "";
         try
         {
@@ -182,9 +184,6 @@ public class NotificationIntentService extends IntentService{
             jObject = new JSONObject(data);
             DirectionsJSONParser parser = new DirectionsJSONParser();
             NotificationIntentService.this.durationMinutes = parser.parseInt(jObject);
-
-            Log.i("++++++++++++++++++++++", "Pobrano czas: " + NotificationIntentService.this.durationMinutes);
-
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -211,22 +210,20 @@ public class NotificationIntentService extends IntentService{
     private void processStartNotification(String name, int minutes, int duration, String url) {
         // Do something. For example, fetch fresh data from backend to create a rich notification?
 
-        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
             if(minutes - duration >= 0)
                 builder.setContentTitle("Przypominienie o wyjsciu! " + name)
                         .setAutoCancel(true)
                         .setColor(getResources().getColor(R.color.colorPrimary))
                         .setContentText("Musisz wyjsc za " + (minutes - duration) + "'")
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setSound(soundUri);
+                        .setSmallIcon(R.drawable.notification_icon);
             else
                 builder.setContentTitle("Przypominienie o wyjsciu! " + name)
                         .setAutoCancel(true)
                         .setColor(getResources().getColor(R.color.colorPrimary))
                         .setContentText("Jestes spozniony o  " + (duration - minutes) + "'")
-                        .setSmallIcon(R.drawable.notification_icon)
-                        .setSound(soundUri);
+                        .setSmallIcon(R.drawable.notification_icon);
 
             Intent mainIntent = new Intent(this, NotificationEvent.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
